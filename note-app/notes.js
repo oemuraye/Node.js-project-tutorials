@@ -1,17 +1,12 @@
 const fs = require('fs')
 const chalk = require('chalk')
 
-const getNotes = () => {
-    return 'Your notes...'
-}
-
 const addNote = (title, body) => {
     const notes = loadNotes()
-    const duplicateNotes = notes.filter(function (note) {
-        return note.title === title
-    })
+    // const duplicateNotes = notes.filter((note) => note.title === title)
+    const duplicateNote = notes.find((note) => note.title === title)
 
-    if (duplicateNotes.length === 0) {
+    if (!duplicateNote) {
         notes.push({
             title: title,
             body: body
@@ -26,16 +21,38 @@ const addNote = (title, body) => {
 
 const removeNote = (title) => {
     const notes = loadNotes()
-    const notesToKeep = notes.filter(function (note) {
-        return note.title !== title
-    })
+    const notesToKeep = notes.filter((note) => note.title !== title)
+
+      //another way(longer way)
+    // const notesToKeep = notes.filter(function (note) {
+    //     return note.title !== title
+    // })
 
     if (notes.length > notesToKeep.length) {
-        // saveNotes(notesToKeep)
         console.log(chalk.bgGreen('Note Removed'))
+        saveNotes(notesToKeep)
     } else {
         console.log(chalk.red.inverse("No Note found"));
     }
+}
+
+const readNote = (title) => {
+    const notes = loadNotes()
+    const noteRead = notes.find((note) => note.title === title)
+
+    if (noteRead) {
+        console.log(chalk.magenta.bold.underline.italic(noteRead.title))
+        console.log(noteRead.body)
+    } else {
+        console.log(chalk.inverse.red('Error...! Note not found'))
+    }
+}
+
+
+const listNotes = () => {
+    const notes = loadNotes()
+    console.log(chalk.bgBlue('Your Notes'))
+    const list = notes.forEach((note) => console.log(note.title));
 }
 
 const saveNotes = (notes) => {
@@ -43,7 +60,7 @@ const saveNotes = (notes) => {
     fs.writeFileSync('notes.json', dataJSON)
 }
 
-const loadNotes = function () {
+const loadNotes = () => {
   try {
     const dataBuffer = fs.readFileSync("notes.json");
     const dataJSON = dataBuffer.toString();
@@ -54,7 +71,8 @@ const loadNotes = function () {
 };
 
 module.exports = {
-    getNotes: getNotes,
     addNote: addNote,
-    removeNote: removeNote
+    removeNote: removeNote,
+    listNotes: listNotes,
+    readNote: readNote
 }
