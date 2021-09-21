@@ -1,8 +1,10 @@
-const request = require('postman-request');
 const chalk = require('chalk')
 const geocode = require('./utils/geocode')
 const forecast = require('./utils/forecast')
 
+
+
+    //before callback abstraction was made...
 // const url = "http://api.weatherstack.com/current?access_key=67cf0805e8f415b0029bf781148a9646&query=37.8267,-122.4233&units=f";
 
 // request({ url: url, json: true }, (error, response) => {
@@ -33,11 +35,46 @@ const forecast = require('./utils/forecast')
 // })
 
 
+const address = process.argv[2];
 
-geocode("Nigeria", (error, data) => {
-  console.log("Error", error);
-  console.log("Data", data);
-});
+if (!address) {
+  console.log("Please provide an address");
+} else {
+  geocode(address, (error, data) => {
+    if (error) {
+      return console.log(error);
+    }
+
+    forecast(data.latitude, data.longitude, (error, forecastData) => {
+      if (error) {
+        return console.log(error);
+      }
+
+      console.log(data.location);
+      console.log(forecastData);
+    });
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -54,7 +91,8 @@ geocode("Nigeria", (error, data) => {
 
 
 
-forecast(8.10530640960786, 9.59395988695573, (error, data) => {
-  console.log("Error!", error);
-  console.log("Data:", data);
-});
+// forecast(8.10530640960786, 9.59395988695573, (error, data) => {
+//   console.log("Error!", error);
+//   console.log("Data:", data);
+// });
+
