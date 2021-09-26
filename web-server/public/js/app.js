@@ -1,1 +1,1 @@
-alert('Client file')
+console.log('Client file')
