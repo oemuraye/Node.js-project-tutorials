@@ -92,18 +92,56 @@ MongoClient.connect(connectionURL, { useNewUrlParser: true }, (error, client) =>
     //       console.log(count)
     //   })
 
-    db.collection("task").findOne(
-      { _id: new ObjectID("615a8e68318c38cc47e93413") },
-      (error, task) => {
-        if (error) {
-          return console.log("Unable to fetch");
-        }
+    // db.collection("task").findOne(
+    //   { _id: new ObjectID("615a8e68318c38cc47e93413") },
+    //   (error, task) => {
+    //     if (error) {
+    //       return console.log("Unable to fetch");
+    //     }
 
-        console.log(task);
-      }
-    );
+    //     console.log(task);
+    //   }
+    // );
 
-    db.collection('task').find({ completed: false }).toArray((error, task) => {
-        console.log(task)
-    })
+    // db.collection('task').find({ completed: false }).toArray((error, task) => {
+    //     console.log(task)
+    // })
+
+    // db.collection("users").updateOne({
+    //   _id: new ObjectID("615a951173308a434d7d877d")
+    // }, {
+    //     $inc: {
+    //       age: 3
+    //     }
+    // }).then((result) => {
+    //   console.log(result)
+    // }).catch((error) => {
+    //   console.log(error)
+    // })
+
+    // db.collection('task').updateMany({ completed: false }, {
+    //   $set: {
+    //     completed: true
+    //   }
+    // }).then((result) => {
+    //   console.log(result.modifiedCount)
+    // }).catch((error) => {
+    //   console.log(error)
+    // })
+
+      // db.collection('users').deleteMany({
+      //   age: 26
+      // }).then((result) => {
+      //   console.log(result)
+      // }).catch((error) => {
+      //   console.log(error)
+      // })
+
+      db.collection('task').deleteOne({
+        description: 'Clean the house'
+      }).then((result) => {
+        console.log(result)
+      }).catch((error) => {
+        console.log(error)
+      })
 });
