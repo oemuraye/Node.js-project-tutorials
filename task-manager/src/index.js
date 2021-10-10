@@ -8,68 +8,121 @@ const port = process.env.PORT || 3000
 
 app.use(express.json())
 
-app.post('/users', (req, res) => {
+//how to create or post a task/user to a database
+app.post('/users', async (req, res) => {
     const user = new User(req.body) 
 
-    user.save().then(() => {
+    try {
+        await user.save()
         res.status(201).send(user)
-    }).catch((e) => {
+    } catch (e) {
         res.status(400).send(e)
-    })
+    }
+
+
+    // user.save().then(() => {
+    //     res.status(201).send(user)
+    // }).catch((e) => {
+    //     res.status(400).send(e)
+    // })
 })
 
-app.get('/users', (req, res) => {
-    User.find({}).then((users) => {
+//how to read/fetch all tasks/users from database
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.find({})
         res.send(users)
-    }).catch((e) => {
+    } catch (e) {
         res.status(500).send(e)
-    })
+    }
+
+    // User.find({}).then((users) => {
+    //     res.send(users)
+    // }).catch((e) => {
+    //     res.status(500).send(e)
+    // })
 })
 
-app.get('/users/:id', (req, res) => {
+//how to read/fetch all task/user from database
+app.get('/users/:id', async (req, res) => {
     const _id = req.params.id
 
-    User.findById(_id).then((user) => {
+    try {
+        const user = await User.findById(_id)
+        if (!user) {
+          return res.status(404).send();
+        }
+
+        res.send(user)
+    } catch (e) {
+        res.status(500).send()
+    }
+
+    // User.findById(_id).then((user) => {
+    //     if (!user) {
+    //         return res.status(404).send()
+    //     }
+
+    //     res.send(user)
+    // }).catch((e) => {
+    //     res.status(500).send(e)
+    // })
+})
+
+//how to update tasks/users in database
+app.patch('/users/:id', async (req, res) => {
+    const updates = Ogject.keys(req.body)
+    const allowedUpdates = ['name', 'email', 'password', 'age']
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+
+    if (!isValidOperation) {
+        return res.status(400).send({ error: 'Invalid updates!'})
+    }
+
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true})
+
         if (!user) {
             return res.status(404).send()
         }
 
         res.send(user)
-    }).catch((e) => {
-        res.status(500).send(e)
-    })
+    } catch (e) {
+        res.status(400).send(e)
+    }
 })
 
-app.post('/task', (req, res) => {
+app.post('/task', async (req, res) => {
     const tasks = new Tasks(req.body)
 
-    tasks.save().then(() => {
+    try {
+        await tasks.save()
         res.status(201).send(tasks)
-    }).catch((e) => {
+    } catch (e) {
         res.status(400).send(e)
-    }) 
+    }
 })
 
-app.get('/task', (req, res) => {
-    Tasks.find({}).then((tasks) => {
+app.get('/task', async (req, res) => {
+    try {
+        const tasks = await Tasks.find({})
         res.send(tasks)
-    }).catch((e) => {
-        res.status(500).send(e)
-    })
+    } catch (e) {
+        res.status(500).send()
+    }
 })
 
-app.get('/task/:id', (req, res) => {
+app.get('/task/:id', async (req, res) => {
     const _id = req.params.id
 
-    Tasks.findById(_id).then((task) => {
+    try {
+        const task = await Tasks.findById(_id)
         if (!task) {
             return res.status(400).send()
         }
-
-        res.send(task)
-    }).catch((e) => {
-        res.status(500).send(e)
-    })
+    } catch (e) {
+        res.status(500).send()
+    }
 })
 
 
