@@ -71,24 +71,40 @@ app.get('/users/:id', async (req, res) => {
 
 //how to update tasks/users in database
 app.patch('/users/:id', async (req, res) => {
-    const updates = Ogject.keys(req.body)
-    const allowedUpdates = ['name', 'email', 'password', 'age']
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+  const updates = Object.keys(req.body)  //keys converts the contents of the object to a string
+  const allowedUpdates = ["name", "email", "password", "age"]
+  const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
 
-    if (!isValidOperation) {
-        return res.status(400).send({ error: 'Invalid updates!'})
+  if (!isValidOperation) {
+    return res.status(400).send({ error: "Invalid updates!" });
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).send()
     }
 
+    res.send(user)
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+//how to delet tasks/users in database
+app.delete('/users/:id', async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true})
+        const user = await User.findByIdAndDelete(req.params.id)
 
         if (!user) {
             return res.status(404).send()
         }
-
-        res.send(user)
     } catch (e) {
-        res.status(400).send(e)
+        res.status(500).send()
     }
 })
 
@@ -124,6 +140,43 @@ app.get('/task/:id', async (req, res) => {
         res.status(500).send()
     }
 })
+
+app.patch('/task/:id', async (req, res) => {
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['description', 'completed']
+    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+
+    if(!isValidOperation) {
+        return res.status(400).send({ error: 'Invalid updates!' })
+    }
+
+    try {
+        const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+          new: true,
+          runValidators: true
+        })
+
+         if (!task) {
+           return res.status(404).send();
+         }
+
+         res.send(task);
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
+
+app.delete('/task/:id', async (req, res) => { 
+  try {
+    const task = await Task.findByIdAndDelete(req.params.id);
+
+    if (!task) {
+      return res.status(404).send();
+    }
+  } catch (e) {
+    res.status(500).send();
+  }
+});
 
 
 app.listen(port, () => {
