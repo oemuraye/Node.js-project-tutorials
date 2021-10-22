@@ -11,6 +11,6 @@ const Tasks = mongoose.model("Tasks", {
     type: Boolean,
     default: false,
   },
-}); 
+})
 
 module.exports = Tasks
