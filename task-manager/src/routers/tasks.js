@@ -1,10 +1,14 @@
 const express = require('express')
 const Tasks = require('../models/task')
-// const auth = require('../middleware/auth');
+const auth = require('../middleware/auth');
 const router = new express.Router()
 
-router.post('/task', async (req, res) => {
-  const tasks = new Tasks(req.body)
+router.post('/task', auth, async (req, res) => {
+
+  const tasks = new Tasks({
+      ...req.body,
+      owner: req.user._id
+  })
 
   try {
     await tasks.save()
@@ -14,20 +18,25 @@ router.post('/task', async (req, res) => {
   }
 });
 
-router.get('/task', async (req, res) => {
+router.get('/task', auth, async (req, res) => {
   try {
-    const tasks = await Tasks.find({})
-    res.send(tasks);
+    // const tasks = await Tasks.find({  owner: req.user._id })
+    // res.send(tasks)
+
+//alternatively the below also works
+
+    await req.user.populate('userTasks')
+    res.send(req.user.userTasks)
   } catch (e) {
     res.status(500).send()
   }
 });
 
-router.get('/task/:id', async (req, res) => {
+router.get('/task/:id', auth, async (req, res) => {
   const _id = req.params.id
 
   try {
-    const task = await Tasks.findById(_id)
+    const task = await Tasks.findOne({ _id, owner: req.user._id })
 
     if (!task) {
       return res.status(404).send()
@@ -39,7 +48,7 @@ router.get('/task/:id', async (req, res) => {
   }
 })
 
-router.patch('/task/:id', async (req, res) => {
+router.patch('/task/:id', auth, async (req, res) => {
   const updates = Object.keys(req.body)
   const allowedUpdates = ["description", "completed"]
   const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
@@ -49,14 +58,15 @@ router.patch('/task/:id', async (req, res) => {
   }
 
   try {
-    const task = await Tasks.findById(req.params.id)
+    const task = await Tasks.findOne({ _id: req.params.id, owner: req.user._id })
 
-    updates.forEach((update) => (task[update] = req.body[update]))
-    await task.save();
-
+    
     if (!task) {
       return res.status(404).send()
     }
+
+    updates.forEach((update) => (task[update] = req.body[update]))
+    await task.save();
 
     res.send(task)
   } catch (e) {
@@ -64,9 +74,9 @@ router.patch('/task/:id', async (req, res) => {
   }
 })
 
-router.delete('/task/:id', async (req, res) => {
+router.delete('/task/:id', auth, async (req, res) => {
   try {
-    const task = await Tasks.findByIdAndDelete(req.params.id);
+    const task = await Tasks.findOneAndDelete({ _id: req.params.id, owner: req.user._id });
 
     if (!task) {
       res.status(404).send()
